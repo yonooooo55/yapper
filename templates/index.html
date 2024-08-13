@@ -1,0 +1,78 @@
+{% extends 'base.html' %} {% block content %}
+<div>
+    
+        <h2>PUBLIC CHAT ROOMS</h2>
+        <table class="table" style="table-layout: fixed; width: 80%; margin: 0 auto;">
+            <thead class="thead-dark" >
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Room Name</th>
+                <th scope="col">Online Users</th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td>Public Room 1</td>
+                <td>55</td>
+                <td><button type="submit" class="btn btn-success" data-toggle = "modal" data-target="#myModal" onclick="setRoomId('PB1', 'Public Room 1')">Join</button></td>
+            </tr>
+            <tr>
+                <th scope="row">2</th>
+                <td>Public Room 2</td>
+                <td>Thornton</td>
+                <td><button type="submit" class="btn btn-success" data-toggle = "modal" data-target="#myModal" onclick="setRoomId('PB2', 'Public Room 2')">Join</button></td>
+            </tr>
+            <tr>
+                <th scope="row">3</th>
+                <td>Public Room 3</td>
+                <td>the Bird</td>
+                <td><button type="submit" class="btn btn-success" data-toggle = "modal" data-target="#myModal" onclick="setRoomId('PB3', 'Public Room 3')">Join</button></td>
+            </tr>
+            </tbody>
+        </table>
+
+</div>
+
+
+<!-- Modal POP UP -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            
+            <!-- Modal Header with close button-->
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Enter Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            
+            <!-- Modal body for details-->
+            <div class="modal-body">
+                <form id="popupDetailsForm" method="POST" action="/join_public_room">
+                    <input type="hidden" id="pb_room_id" name="pb_room_id">
+                    <div class="form-group">
+                        <label for="anon_username">Username:</label>
+                        <input type="text" id="anon_username" name="anon_username" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setRoomId(roomId, roomName) {
+        document.getElementById('modalLabel').textContent = 'Join ' + roomName;
+        document.getElementById('pb_room_id').value = roomId;
+    }
+
+    document.getElementById('popupDetailsForm').addEventListener('submit', function(event) {
+        $('#myModal').modal('hide'); // Hide the modal after submission
+    });
+</script>
+
+{% endblock %}

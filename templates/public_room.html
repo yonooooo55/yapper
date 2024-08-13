@@ -1,0 +1,103 @@
+{% extends 'base.html' %} {% block content %}
+
+
+<div class="message-box">
+    <h2>Chat Room: {{code}}</h2>
+    <div class = "messages" id = "messages" name = "messages"></div>
+    <div class = "inputs">
+        <input type="text" rows = 3 id = "message" name = "message" placeholder="Enter your message here!">
+        <button type = "button" name = "send" id = "send-btn" onclick="sendMessage()">Send Message</button>
+        
+    </div>
+</div>
+
+
+<script type = "text/javascript" defer>
+    const socket = io();
+
+    const msgContainer = document.getElementById("messages");
+
+    const createMessage = (name, message) => {
+        const content = `
+        <div class="text">
+            <span>
+                <strong>${name}</strong>: ${message}
+            </span>
+            <span class="muted">
+                ${new Date().toLocaleString()}
+            </span>
+        </div>
+        `;
+
+        msgContainer.innerHTML += content;
+    }
+    
+    // Load existing messages when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+
+        try {
+            const existingMessages = JSON.parse('{{ messages|tojson|safe }}');
+            if (Array.isArray(existingMessages)) {
+                existingMessages.forEach(msg => {
+                    createMessage(msg.name, msg.message);
+                });
+            } else {
+                console.error('Existing messages is not an array:', existingMessages);
+            }
+        } catch (error) {
+            console.error('Error parsing messages JSON:', error);
+        }
+    }); 
+
+    
+
+    // This is where the listener for the message event will be
+    socket.on("grpm", (data) => {
+        
+        if (data && data.name && data.message) {
+        console.log(`Received message from ${data.name}: ${data.message}`);
+        } else {
+            console.error('Received unexpected message format:', data);
+        }
+        createMessage(data.name, data.message);
+        console.log(data.name + ' says: ' + data.message);
+    });
+
+    socket.on('connect', () => {
+    console.log('Connected to Socket.IO server');
+    });
+
+    socket.on('disconnected', (data) => {
+        if (data && data.name && data.message) {
+            createMessage(data.name, data.message);
+        }
+    });
+
+    // Get the message from the element and send it to the server
+    // If empty, return if not send the message and empty the field
+    const sendMessage = () => {
+        const message = document.getElementById("message");
+        if (message.value == "") return;
+        socket.emit("public_message", {data: message.value});   
+        message.value = "";
+    }
+</script>
+
+{% for msg in messages %}
+<script type="text/javascript">
+  createMessage("{{msg.name}}", "{{msg.message}}");
+</script>
+{% endfor %} 
+
+
+
+
+
+
+{% if status_msg %}
+<div class="alert alert-primary" role="alert">
+    {{ status_msg }}
+</div>
+{% endif %}
+
+{% endblock %}
